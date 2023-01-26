@@ -58,8 +58,16 @@
 
 
 //-----------------------------------------------------------------------------
-// Digital I/O
+// Global vars - digital I/O
 //-----------------------------------------------------------------------------
+char output_name[20];
+
+
+//-----------------------------------------------------------------------------
+// Global vars - general
+//-----------------------------------------------------------------------------
+char id_char[4];
+int id_int = 0;
 char value_char[4];
 int value_int = 0;
 
@@ -67,7 +75,7 @@ int value_int = 0;
 //-----------------------------------------------------------------------------
 // Set outputs
 //-----------------------------------------------------------------------------
-//void setOutput(int id, char &output, int output_channel, int output_value);
+void setOutput(int id, char *output);
 
 
 
@@ -129,12 +137,15 @@ void updateBuffersOut()
   //
 	// }
 
-  value_int = *bool_output[0][0];
-  snprintf(value_char, sizeof(value_char), "%d", value_int);
+  // value_int = *bool_output[0][0];
+  // snprintf(value_char, sizeof(value_char), "%d", value_int);
+
+  //if outputs from editor are in range of relays
+  strcpy(output_name, "wrelay");
 
 	if (fork() == 0)
 	{
-		execl(MEGAIO_PATH, MEGAIO_COMMAND, "0", "wrelay", "1", value_char, NULL);
+		setOutput(0, output_name);
 	}
 
 	wait(NULL);
@@ -151,4 +162,16 @@ void updateBuffersOut()
 	**************************************************/
 
 	pthread_mutex_unlock(&bufferLock); //unlock mutex
+}
+
+
+//-----------------------------------------------------------------------------
+// Definition of setOutput
+//-----------------------------------------------------------------------------
+void setOutput(int id, char *output)
+{
+
+  snprintf(id_char, sizeof(id_char), "%d", id);
+
+  execl(MEGAIO_PATH, MEGAIO_COMMAND, "0", output, "1", "1", NULL);
 }
