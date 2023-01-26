@@ -126,21 +126,6 @@ void updateBuffersOut()
 {
 	pthread_mutex_lock(&bufferLock); //lock mutex
 
-	// if(*bool_output[0][0] == 0)
-	// {
-	// 	strcpy(state, "off");
-	// }
-  //
-	// if(*bool_output[0][0] == 1)
-	// {
-	// 	strcpy(state, "on");
-  //
-	// }
-
-  // value_int = *bool_output[0][0];
-  // snprintf(value_char, sizeof(value_char), "%d", value_int);
-
-
 
   // This is for future versions, in which stacked cards may be used
   id_int = 0;
@@ -172,7 +157,7 @@ void updateBuffersOut()
       if (bool_output[i/8][i%8] != NULL)
       {
         strcpy(output_name, "wrelay");
-        channel_int = i+1;
+        channel_int = i-3;
         value_int = *bool_output[i/8][i%8];
 
         if (fork() == 0)
@@ -184,19 +169,7 @@ void updateBuffersOut()
       }
     }
   }
-  // //if outputs from editor are in range of relays
-  // strcpy(output_name, "wrelay");
-  //
-  // // set the outputs with channel and value
-  // channel_int = 1;
-  // value_int = *bool_output[0][1];
-  //
-	// if (fork() == 0)
-	// {
-	// 	setOutput(id_int, output_name, channel_int, value_int);
-	// }
-  //
-	// wait(NULL);
+
 
 
 	/*********READING AND WRITING TO I/O**************
