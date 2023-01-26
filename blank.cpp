@@ -58,24 +58,24 @@
 
 
 //-----------------------------------------------------------------------------
-// Global vars - digital I/O
-//-----------------------------------------------------------------------------
-char output_name[20];
-
-
-//-----------------------------------------------------------------------------
 // Global vars - general
 //-----------------------------------------------------------------------------
-char id_char[4];
+char id_char[2];
 int id_int = 0;
-char value_char[4];
+
+char output_name[20];
+
+char channel_char[2];
+int channel_int = 0;
+
+char value_char[20];
 int value_int = 0;
 
 
 //-----------------------------------------------------------------------------
 // Set outputs
 //-----------------------------------------------------------------------------
-void setOutput(int id, char *output);
+void setOutput(int id, char *output, int channel, int value);
 
 
 
@@ -140,12 +140,21 @@ void updateBuffersOut()
   // value_int = *bool_output[0][0];
   // snprintf(value_char, sizeof(value_char), "%d", value_int);
 
+
+
+  // This is for future versions, in which stacked cards may be used
+  id_int = 0;
+
   //if outputs from editor are in range of relays
   strcpy(output_name, "wrelay");
 
+  // set the outputs with channel and value
+  channel_int = 1;
+  value_int = *bool_output[0][0];
+
 	if (fork() == 0)
 	{
-		setOutput(0, output_name);
+		setOutput(id_int, output_name, channel_int, value_int);
 	}
 
 	wait(NULL);
@@ -168,10 +177,13 @@ void updateBuffersOut()
 //-----------------------------------------------------------------------------
 // Definition of setOutput
 //-----------------------------------------------------------------------------
-void setOutput(int id, char *output)
+void setOutput(int id, char *output, int channel, int value)
 {
 
   snprintf(id_char, sizeof(id_char), "%d", id);
 
-  execl(MEGAIO_PATH, MEGAIO_COMMAND, "0", output, "1", "1", NULL);
+  snprintf(channel_char, sizeof(channel_char), "%d", channel);
+  snprintf(value_char, sizeof(value_char), "%d", value);
+
+  execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, output, channel_char, value_char, NULL);
 }
