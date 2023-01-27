@@ -75,7 +75,7 @@ int value_int = 0;
 //-----------------------------------------------------------------------------
 // Set outputs
 //-----------------------------------------------------------------------------
-void setOutput(int id, char *output, int channel, int value);
+void SetDigitalOutput(int id, char *output, int channel, int value);
 
 
 
@@ -144,7 +144,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
       	{
-      		setOutput(id_int, output_name, channel_int, value_int);
+      		SetDigitalOutput(id_int, output_name, channel_int, value_int);
       	}
 
       	wait(NULL);
@@ -162,7 +162,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
         {
-          setOutput(id_int, output_name, channel_int, value_int);
+          SetDigitalOutput(id_int, output_name, channel_int, value_int);
         }
 
         wait(NULL);
@@ -187,9 +187,9 @@ void updateBuffersOut()
 
 
 //-----------------------------------------------------------------------------
-// Definition of setOutput
+// Definition of SetDigitalOutput
 //-----------------------------------------------------------------------------
-void setOutput(int id, char *output, int channel, int value)
+void SetDigitalOutput(int id, char *output, int channel, int value)
 {
 
   snprintf(id_char, sizeof(id_char), "%d", id);
