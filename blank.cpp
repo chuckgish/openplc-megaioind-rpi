@@ -41,7 +41,7 @@
 
 //-----------------------------------------------------------------------------
 // The digital inputs are the opto-isolated inputs. Four of the digital outputs
-// are opto-isolated outputs, and the other four are relays. Both the analog
+// are open drain outputs, and the other four are relays. Both the analog
 // inputs and outputs have four each 0-10 V, and four each 4-20 mA.
 //-----------------------------------------------------------------------------
 #define MAX_INPUT 		4
