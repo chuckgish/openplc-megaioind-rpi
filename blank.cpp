@@ -26,6 +26,7 @@
 //-----------------------------------------------------------------------------
 
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -85,6 +86,10 @@ void SetDigitalOutput(int id, char *output, int channel, int value);
 void SetAnalogOutput(int id, char *output, int channel, float value);
 
 
+//-----------------------------------------------------------------------------
+// Scale word value (0-65535) from PLC to some range
+//-----------------------------------------------------------------------------
+float scaleFromWord(float source_value, float target_min, float target_max);
 
 //-----------------------------------------------------------------------------
 // This function is called by the main OpenPLC routine when it is initializing.
@@ -220,4 +225,15 @@ void SetAnalogOutput(int id, char *output, int channel, float value)
   snprintf(value_char, sizeof(value_char), "%2f", value);
 
   execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, output, channel_char, value_char, NULL);
+}
+
+
+//-----------------------------------------------------------------------------
+// ScleFromWord
+//-----------------------------------------------------------------------------
+float scaleFromWord(float word_value, float target_min, float target_max)
+{
+  float target_value = (word_value/65535)*(target_max - target_min) + target_min;
+
+  return target_value;
 }
