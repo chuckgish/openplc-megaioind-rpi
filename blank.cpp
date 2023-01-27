@@ -183,7 +183,45 @@ void updateBuffersOut()
   }
 
 
+  // ANALOG OUT
+  for (int i = 0; i < MAX_ANALOG_OUT; i++)
+  {
+    if (i < 4) //0-10 Volt outputs - 0 to 3
+    {
+      if (pinNotPresent(ignored_int_outputs, ARRAY_SIZE(ignored_int_outputs), i))
+    		if (int_output[i] != NULL)
+      {
+        strcpy(output_name, "wuout");
+        channel_int = i+1;
+        value_float = scaleFromWord(*int_output[i], 0, 10);
 
+        if (fork() == 0)
+      	{
+      		SetAnalogOutput(id_int, output_name, channel_int, value_float);
+      	}
+
+      	wait(NULL);
+      }
+
+    }
+    else // 4-20 mA outputs - 4-7
+    {
+      if (pinNotPresent(ignored_int_outputs, ARRAY_SIZE(ignored_int_outputs), i))
+    		if (int_output[i] != NULL)
+      {
+        strcpy(output_name, "wiout");
+        channel_int = i-3;
+        value_float = scaleFromWord(*int_output[i], 4, 20);
+
+        if (fork() == 0)
+      	{
+      		SetAnalogOutput(id_int, output_name, channel_int, value_float);
+      	}
+
+      	wait(NULL);
+      }
+    }
+  }
 	/*********READING AND WRITING TO I/O**************
 
 	*bool_input[0][0] = read_digital_input(0);
