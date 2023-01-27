@@ -58,7 +58,7 @@
 
 
 //-----------------------------------------------------------------------------
-// Global vars - general
+// Global vars
 //-----------------------------------------------------------------------------
 char id_char[2];
 int id_int = 0;
@@ -70,12 +70,19 @@ int channel_int = 0;
 
 char value_char[20];
 int value_int = 0;
+float value_float = 0.0;
 
 
 //-----------------------------------------------------------------------------
-// Set outputs
+// Set a digital output with the megaioind command
 //-----------------------------------------------------------------------------
 void SetDigitalOutput(int id, char *output, int channel, int value);
+
+
+//-----------------------------------------------------------------------------
+// Set an analog output with the megaioind command
+//-----------------------------------------------------------------------------
+void SetAnalogOutput(int id, char *output, int channel, float value);
 
 
 
@@ -187,7 +194,7 @@ void updateBuffersOut()
 
 
 //-----------------------------------------------------------------------------
-// Definition of SetDigitalOutput
+// SetDigitalOutput
 //-----------------------------------------------------------------------------
 void SetDigitalOutput(int id, char *output, int channel, int value)
 {
@@ -196,6 +203,21 @@ void SetDigitalOutput(int id, char *output, int channel, int value)
 
   snprintf(channel_char, sizeof(channel_char), "%d", channel);
   snprintf(value_char, sizeof(value_char), "%d", value);
+
+  execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, output, channel_char, value_char, NULL);
+}
+
+
+//-----------------------------------------------------------------------------
+// SetAnalogOutput
+//-----------------------------------------------------------------------------
+void SetAnalogOutput(int id, char *output, int channel, float value)
+{
+
+  snprintf(id_char, sizeof(id_char), "%d", id);
+
+  snprintf(channel_char, sizeof(channel_char), "%d", channel);
+  snprintf(value_char, sizeof(value_char), "%2f", value);
 
   execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, output, channel_char, value_char, NULL);
 }
