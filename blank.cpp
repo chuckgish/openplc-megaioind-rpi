@@ -76,7 +76,7 @@ float value_float = 0.0;
 
 
 //-----------------------------------------------------------------------------
-// Get a digital output
+// Get a digital input
 //-----------------------------------------------------------------------------
 int getDigitalInput(int id, char *input, int channel);
 
@@ -85,6 +85,12 @@ int getDigitalInput(int id, char *input, int channel);
 // Set a digital output
 //-----------------------------------------------------------------------------
 void setDigitalOutput(int id, char *output, int channel, int value);
+
+
+//-----------------------------------------------------------------------------
+// Get an analog input
+//-----------------------------------------------------------------------------
+float getAnalogInput(int id, char *input, int channel);
 
 
 //-----------------------------------------------------------------------------
@@ -297,10 +303,11 @@ int getDigitalInput(int id, char *input, int channel)
     close(link[1]);
     int nbytes = read(link[0], execl_response, sizeof(execl_response));
 
-    ret_int = execl_response[0] - '0';
-    printf("%d", ret_int+3);
+    //ret_int = execl_response[0] - '0';
 
-    //remove this? It could be redundant....
+    char ret_char[2] = {execl_response[0], '\0'};
+    ret_int = atoi(ret_char);
+
     wait(NULL);
 
   }
@@ -323,6 +330,67 @@ void setDigitalOutput(int id, char *output, int channel, int value)
   snprintf(value_char, sizeof(value_char), "%d", value);
 
   execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, output, channel_char, value_char, NULL);
+}
+
+
+//-----------------------------------------------------------------------------
+// getAnalogInput
+//-----------------------------------------------------------------------------
+float getAnalogInput(int id, char *input, int channel)
+{
+  float ret_float = 0.0;
+
+  snprintf(id_char, sizeof(id_char), "%d", id);
+
+  snprintf(channel_char, sizeof(channel_char), "%d", channel);
+
+  //----------------------------------------------------------------------------
+  // This is based on code found at:
+  // https://stackoverflow.com/questions/7292642/grabbing-output-from-exec
+  //----------------------------------------------------------------------------
+  #define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
+
+  int link[2];
+  pid_t pid;
+  char execl_response[10];
+
+  if (pipe(link)==-1)
+    die("pipe");
+
+  if ((pid = fork()) == -1)
+    die("fork");
+
+  if(pid == 0) {
+
+    dup2 (link[1], STDOUT_FILENO);
+    close(link[0]);
+    close(link[1]);
+    execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, input, channel_char, NULL);
+    die("execl");
+
+  } else {
+
+    close(link[1]);
+    int nbytes = read(link[0], execl_response, sizeof(execl_response));
+
+    char ret_char[6] = {
+                        execl_response[0],
+                        execl_response[1],
+                        execl_response[2],
+                        execl_response[3],
+                        execl_response[4],
+                        '\0'
+                        };
+
+    ret_float = atof(ret_char);
+
+    wait(NULL);
+
+  }
+  //------------------------------------------------------------------------------
+
+return ret_float;
+
 }
 
 
