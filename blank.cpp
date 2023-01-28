@@ -65,6 +65,7 @@ char id_char[2];
 int id_int = 0;
 
 char output_name[20];
+char input_name[20];
 
 char channel_char[2];
 int channel_int = 0;
@@ -75,15 +76,21 @@ float value_float = 0.0;
 
 
 //-----------------------------------------------------------------------------
-// Set a digital output with the megaioind command
+// Get a digital output
 //-----------------------------------------------------------------------------
-void SetDigitalOutput(int id, char *output, int channel, int value);
+int getDigitalInput(int id, char *input, int channel);
 
 
 //-----------------------------------------------------------------------------
-// Set an analog output with the megaioind command
+// Set a digital output
 //-----------------------------------------------------------------------------
-void SetAnalogOutput(int id, char *output, int channel, float value);
+void setDigitalOutput(int id, char *output, int channel, int value);
+
+
+//-----------------------------------------------------------------------------
+// Set an analog output
+//-----------------------------------------------------------------------------
+void setAnalogOutput(int id, char *output, int channel, float value);
 
 
 //-----------------------------------------------------------------------------
@@ -116,6 +123,22 @@ void updateBuffersIn()
 {
 	pthread_mutex_lock(&bufferLock); //lock mutex
 
+
+  //DIGITAL INPUT
+  strcpy(input_name, "ropto");
+
+	for (int i = 0; i < MAX_INPUT; i++)
+	{
+	    if (pinNotPresent(ignored_bool_inputs, ARRAY_SIZE(ignored_bool_inputs), i))
+    		if (bool_input[i/8][i%8] != NULL)
+        {
+          channel_int = i+1;
+          *bool_input[i/8][i%8] = getDigitalInput(id_int, input_name, channel_int);;
+        }
+	}
+
+
+
 	/*********READING AND WRITING TO I/O**************
 
 	*bool_input[0][0] = read_digital_input(0);
@@ -139,9 +162,6 @@ void updateBuffersOut()
 	pthread_mutex_lock(&bufferLock); //lock mutex
 
 
-  // This is for future versions, in which stacked cards may be used
-  id_int = 0;
-
   // DIGITAL OUT
   for (int i = 0; i < MAX_OUTPUT; i++)
   {
@@ -156,7 +176,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
       	{
-      		SetDigitalOutput(id_int, output_name, channel_int, value_int);
+      		setDigitalOutput(id_int, output_name, channel_int, value_int);
       	}
 
       	wait(NULL);
@@ -174,7 +194,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
         {
-          SetDigitalOutput(id_int, output_name, channel_int, value_int);
+          setDigitalOutput(id_int, output_name, channel_int, value_int);
         }
 
         wait(NULL);
@@ -197,7 +217,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
       	{
-      		SetAnalogOutput(id_int, output_name, channel_int, value_float);
+      		setAnalogOutput(id_int, output_name, channel_int, value_float);
       	}
 
       	wait(NULL);
@@ -215,7 +235,7 @@ void updateBuffersOut()
 
         if (fork() == 0)
       	{
-      		SetAnalogOutput(id_int, output_name, channel_int, value_float);
+      		setAnalogOutput(id_int, output_name, channel_int, value_float);
       	}
 
       	wait(NULL);
@@ -237,9 +257,64 @@ void updateBuffersOut()
 
 
 //-----------------------------------------------------------------------------
-// SetDigitalOutput
+// getDigitalInput
 //-----------------------------------------------------------------------------
-void SetDigitalOutput(int id, char *output, int channel, int value)
+int getDigitalInput(int id, char *input, int channel)
+{
+
+  int ret_int = 0;
+
+  snprintf(id_char, sizeof(id_char), "%d", id);
+
+  snprintf(channel_char, sizeof(channel_char), "%d", channel);
+
+  //----------------------------------------------------------------------------
+  // This is based on code found at:
+  // https://stackoverflow.com/questions/7292642/grabbing-output-from-exec
+  //----------------------------------------------------------------------------
+  #define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
+
+  int link[2];
+  pid_t pid;
+  char execl_response[10];
+
+  if (pipe(link)==-1)
+    die("pipe");
+
+  if ((pid = fork()) == -1)
+    die("fork");
+
+  if(pid == 0) {
+
+    dup2 (link[1], STDOUT_FILENO);
+    close(link[0]);
+    close(link[1]);
+    execl(MEGAIO_PATH, MEGAIO_COMMAND, id_char, input, channel_char, NULL);
+    die("execl");
+
+  } else {
+
+    close(link[1]);
+    int nbytes = read(link[0], execl_response, sizeof(execl_response));
+
+    ret_int = execl_response[0] - '0';
+    printf("%d", ret_int+3);
+
+    //remove this? It could be redundant....
+    wait(NULL);
+
+  }
+  //------------------------------------------------------------------------------
+
+return ret_int;
+
+}
+
+
+//-----------------------------------------------------------------------------
+// setDigitalOutput
+//-----------------------------------------------------------------------------
+void setDigitalOutput(int id, char *output, int channel, int value)
 {
 
   snprintf(id_char, sizeof(id_char), "%d", id);
@@ -252,9 +327,9 @@ void SetDigitalOutput(int id, char *output, int channel, int value)
 
 
 //-----------------------------------------------------------------------------
-// SetAnalogOutput
+// setAnalogOutput
 //-----------------------------------------------------------------------------
-void SetAnalogOutput(int id, char *output, int channel, float value)
+void setAnalogOutput(int id, char *output, int channel, float value)
 {
 
   snprintf(id_char, sizeof(id_char), "%d", id);
