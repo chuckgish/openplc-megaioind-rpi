@@ -105,6 +105,12 @@ void setAnalogOutput(int id, char *output, int channel, float value);
 float scaleFromWord(float source_value, float target_min, float target_max);
 
 //-----------------------------------------------------------------------------
+// Scale from analog value to word value (0-65535)
+//-----------------------------------------------------------------------------
+int scaleToWord(float measure_value, float measure_min, float measure_max);
+
+
+//-----------------------------------------------------------------------------
 // This function is called by the main OpenPLC routine when it is initializing.
 // Hardware initialization procedures should be here.
 //-----------------------------------------------------------------------------
@@ -410,11 +416,22 @@ void setAnalogOutput(int id, char *output, int channel, float value)
 
 
 //-----------------------------------------------------------------------------
-// ScleFromWord
+// scaleFromWord
 //-----------------------------------------------------------------------------
 float scaleFromWord(float word_value, float target_min, float target_max)
 {
   float target_value = (word_value/65535)*(target_max - target_min) + target_min;
+
+  return target_value;
+}
+
+
+//-----------------------------------------------------------------------------
+// scaleToWord
+//-----------------------------------------------------------------------------
+int scaleToWord(float measure_value, float measure_min, float measure_max)
+{
+  float target_value = ((measure_value - measure_min)/(measure_max - measure_min))*65535;
 
   return target_value;
 }
