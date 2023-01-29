@@ -137,19 +137,49 @@ void updateBuffersIn()
 
 
   //DIGITAL INPUT
-  strcpy(input_name, "ropto");
-
 	for (int i = 0; i < MAX_INPUT; i++)
 	{
 	    if (pinNotPresent(ignored_bool_inputs, ARRAY_SIZE(ignored_bool_inputs), i))
     		if (bool_input[i/8][i%8] != NULL)
         {
+          strcpy(input_name, "ropto");
           channel_int = i+1;
+
           *bool_input[i/8][i%8] = getDigitalInput(id_int, input_name, channel_int);;
         }
 	}
 
+  // ANALOG IN
+  for (int i = 0; i < MAX_ANALOG_IN; i++)
+  {
+    if (i < 4) //0-10 Volt inputs - 0 to 3
+    {
+      if (pinNotPresent(ignored_int_inputs, ARRAY_SIZE(ignored_int_inputs), i))
+        if (int_input[i] != NULL)
+      {
+        strcpy(input_name, "ruin");
+        channel_int = i+1;
 
+        value_float = getAnalogInput(id_int, input_name, channel_int);
+        *int_input[i] = scaleToWord(value_float, 0.0, 10.0);
+      }
+
+    }
+    else // 4-20 mA inputs - 4 to 7
+    {
+      if (pinNotPresent(ignored_int_inputs, ARRAY_SIZE(ignored_int_inputs), i))
+        if (int_input[i] != NULL)
+      {
+        strcpy(input_name, "riin");
+        channel_int = i-3;
+
+        value_float = getAnalogInput(id_int, input_name, channel_int);
+        *int_input[i] = scaleToWord(value_float, 4.0, 20.0);
+      }
+
+    }
+
+  } 
 
 	/*********READING AND WRITING TO I/O**************
 
@@ -433,5 +463,5 @@ int scaleToWord(float measure_value, float measure_min, float measure_max)
 {
   float target_value = ((measure_value - measure_min)/(measure_max - measure_min))*65535;
 
-  return target_value;
+  return (int)target_value;
 }
