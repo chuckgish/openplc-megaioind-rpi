@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 OpenPLC Driver for MEGAIO-IND
 =============================
 
