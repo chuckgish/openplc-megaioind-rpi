@@ -5,7 +5,7 @@ This driver is for the old (original) card from Sequent Microsystems. It uses th
 
 Links to original projects:
 
-OpenPLC: https://github.com/thiagoralves/OpenPLC_v3
+OpenPLC: https://github.com/thiagoralves/OpenPLC_v3<br />
 Sequent Microsystems: https://github.com/SequentMicrosystems
 
 Usage
@@ -13,9 +13,11 @@ Usage
 
 1. Backup the existing blank (for Linux) hardware driver
 
-'cd OpenPLC_v3/webserver/core/hardware_layers/'
+'''
+cd OpenPLC_v3/webserver/core/hardware_layers/
 
-'cp blank.cpp blank.cpp_backup'
+cp blank.cpp blank.cpp_backup
+'''
 
 2. Replace the contents of the blank.cpp file in that directory with the contents of the blank.cpp file in this repository
 
