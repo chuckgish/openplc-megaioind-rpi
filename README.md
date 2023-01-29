@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 OpenPLC Driver for MEGAIO-IND
 =============================
 
@@ -29,3 +30,7 @@ Physical Addressing
 |                 |4-20 mA (x4)                       |%IW4 - %IW7      |
 |Analog Out       |0-10 Volts (x4)                    |%QW0 - %QW3      |
 |                 |4-20 mA (x4)                       |%QW4 - %QW7      |
+=======
+# openplc-megaioind-rpi
+OpenPLC hardware driver for the original (old model) MegaIO-IND Raspberry Pi expansion card from Sequent Microsystems
+>>>>>>> 76e7dde6716688cc0b8b5628e0fc7346fa5cc21e
